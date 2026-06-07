@@ -1,8 +1,12 @@
 // src/views/Login.jsx
-import React, { useState } from 'react';
-import './Login.css'; // Importamos el archivo de estilos separado
+import React, { useState, useContext } from 'react';
+import { AppContext } from '../../context/AppContext'; // Importamos el contexto global
+import './Login.css'; // Estilos externos separados
 
-export default function Login({ users, setCurrentUser }) {
+export default function Login() {
+  // Consumimos la lista de usuarios y la función para loguear desde el contexto
+  const { users, setCurrentUser } = useContext(AppContext);
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -11,13 +15,13 @@ export default function Login({ users, setCurrentUser }) {
     e.preventDefault();
     setError('');
 
-    // Validamos si las credenciales coinciden con algún usuario de nuestra simulación viva
+    // Validamos si las credenciales coinciden con algún usuario del contexto
     const foundUser = users.find(
       (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
     );
 
     if (foundUser) {
-      // Seteamos el usuario en el estado global de App.jsx y cambia de pantalla solo
+      // Al setear el usuario actual, App.jsx reacciona y te da paso al sistema
       setCurrentUser(foundUser);
     } else {
       setError('Credenciales incorrectas. Intentá de nuevo.');

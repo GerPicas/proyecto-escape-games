@@ -1,66 +1,46 @@
 // src/App.jsx
-import React, { useState, useEffect } from 'react';
-import { initialUsers } from './data/mockData';
+import React, { useContext } from 'react';
+import { AppContext } from './context/AppContext';
 
-// Importación del Login
+// Importación de Componentes y Vistas
 import Login from './views/Login/Login';
+import Sidebar from './components/Sidebar/Sidebar';
 
-// Importación de los estilos separados
 import './App.css';
 
 export default function App() {
-  // --- 1. ESTADO DE USUARIOS (Con persistencia en LocalStorage) ---
-  const [users, setUsers] = useState(() => {
-    const saved = localStorage.getItem('er_users');
-    return saved ? JSON.parse(saved) : initialUsers;
-  });
+  const { currentUser, currentView } = useContext(AppContext);
 
-  // --- 2. ESTADO DE CONTROL DE AUTENTICACIÓN ---
-  const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('er_current_user');
-    return saved ? JSON.parse(saved) : null;
-  });
-
-  // --- 3. EFECTOS PARA GUARDAR EN LOCALSTORAGE ---
-  useEffect(() => {
-    localStorage.setItem('er_users', JSON.stringify(users));
-  }, [users]);
-
-  useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem('er_current_user', JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem('er_current_user');
+  // Función interna para decidir qué pantalla mostrar a la derecha del Sidebar
+  const renderActiveView = () => {
+    switch (currentView) {
+      case 'INICIO':
+        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Inicio</h2><p>Acá irá el calendario y la grilla horaria.</p></div>;
+      case 'RESERVAS':
+        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Reservas</h2><p>Acá irá la tabla y modales de clientes.</p></div>;
+      case 'PAGOS':
+        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Pagos</h2><p>Acá irán las cajas, KPIs financieros y transacciones.</p></div>;
+      case 'USUARIOS':
+        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Usuarios</h2><p>Panel exclusivo del Analista para dar de alta accesos.</p></div>;
+      default:
+        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Inicio</h2></div>;
     }
-  }, [currentUser]);
+  };
 
-  // --- 4. RENDERIZADO ---
   return (
     <div className="app-container">
       {!currentUser ? (
-        <Login users={users} setCurrentUser={setCurrentUser} />
+        <Login />
       ) : (
-        <main className="main-content">
-          {/* Botón discreto para cerrar sesión en la esquina superior derecha */}
-          <button 
-            onClick={() => setCurrentUser(null)}
-            style={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              padding: '8px 16px',
-              backgroundColor: '#ef4444',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '14px'
-            }}
-          >
-            Cerrar Sesión
-          </button>
-        </main>
+        <>
+          {/* Menu Lateral Fijo */}
+          <Sidebar />
+          
+          {/* Contenedor de la pantalla seleccionada */}
+          <main className="main-content" style={{ padding: '40px', backgroundColor: '#ffffff' }}>
+            {renderActiveView()}
+          </main>
+        </>
       )}
     </div>
   );
