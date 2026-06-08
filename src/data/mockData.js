@@ -37,51 +37,51 @@ export const initialReservations = [
     personas: 4,
     estado: "Confirmada", // Confirmada, Completada, Cancelada
     pago: "Pagado",
-    canal: "Web"
+    canal: "Web"          // Únicamente Web o WhatsApp
   },
   {
     id: "REV-002",
-    cliente: "Juan Pérez",
-    sala: "Laboratorio del Dr. Chaos",
-    fecha: "2026-05-11",
-    hora: "16:00",
-    personas: 5,
+    cliente: "Gonzalo Pérez",
+    sala: "Misterio del Faraón",
+    fecha: "2026-05-10",
+    hora: "16:30",
+    personas: 6,
     estado: "Confirmada",
-    pago: "Pendiente",
+    pago: "Pagado",
     canal: "WhatsApp"
   },
   {
     id: "REV-003",
-    cliente: "Carolina Rodríguez",
-    sala: "La Mansión Embrujada",
-    fecha: "2026-05-12",
-    hora: "18:30",
-    personas: 6,
-    estado: "Completada",
-    pago: "Pagado",
+    cliente: "Mariana Rodríguez",
+    sala: "Laboratorio Zombie",
+    fecha: "2026-05-10",
+    hora: "19:00",
+    personas: 3,
+    estado: "Cancelada",
+    pago: "No Pagado",
     canal: "Web"
   },
   {
     id: "REV-004",
-    cliente: "Lucas Martínez",
-    sala: "Atraco al Banco Central",
-    fecha: "2026-05-11",
-    hora: "20:00",
-    personas: 3,
-    estado: "Cancelada",
-    pago: "Reembolsado",
-    canal: "Presencial"
+    cliente: "Juan Gómez",
+    sala: "Laboratorio Zombie",
+    fecha: "2026-06-10",
+    hora: "21:30",
+    personas: 5,
+    estado: "Confirmada",
+    pago: "No Pagado", // Entra como pendiente/por cobrar
+    canal: "WhatsApp"
   },
   {
     id: "REV-005",
-    cliente: "Tania López",
-    sala: "Laboratorio del Dr. Chaos",
-    fecha: "2026-05-14",
-    hora: "15:00",
-    personas: 4,
+    cliente: "Lucas Gentile",
+    sala: "Misterio del Faraón",
+    fecha: "2026-05-15", // Fecha posterior (no cuenta en la jornada auditada)
+    hora: "18:00",
+    personas: 2,
     estado: "Confirmada",
     pago: "Pagado",
-    canal: "Instagram"
+    canal: "Web"
   }
 ];
 

@@ -66,9 +66,13 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('er_metrics', JSON.stringify(metrics));
   }, [metrics]);
 
+// --- EFECTO ADICIONAL: Suavizado para que NO te congele el scroll al renderizar ---
   useEffect(() => {
-    localStorage.setItem('er_system_status', JSON.stringify(systemStatus));
-  }, [systemStatus]);
+    window.scrollTo(0, 0);
+    // Comentamos esta línea temporalmente si tu layout maneja el scroll de forma global
+    // const mainContent = document.querySelector('.main-content');
+    // if (mainContent) mainContent.scrollTop = 0;
+  }, [currentView]);
 
   useEffect(() => {
     if (currentUser) {

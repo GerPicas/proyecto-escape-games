@@ -1,5 +1,7 @@
 /* src/App.css */
 
+
+
 .app-container {
   display: flex;
   min-height: 100vh;
@@ -13,6 +15,11 @@
 
 .main-content {
   flex: 1;
-  position: relative;
-  width: 100%;
+  height: 100vh;
+  
+  /* ESTO ES LO QUE SUELE ESTAR EN 'HIDDEN' Y TE TRABA LA PANTALLA: */
+  overflow-y: auto !important;  /* Cambialo a auto o scroll */
+  
+  padding: 20px;
+  box-sizing: border-box;
 }

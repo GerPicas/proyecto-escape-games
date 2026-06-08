@@ -39,6 +39,23 @@ export default function Sidebar() {
           💳 Pagos
         </button>
 
+        {/* Nueva sección de Facturación */}
+        <button 
+          onClick={() => setCurrentView('FACTURACION')}
+          className={`sidebar-link ${currentView === 'FACTURACION' ? 'active' : ''}`}
+        >
+          🧾 Facturación
+        </button>
+
+        {/* Nueva sección de Integración */}
+        <button 
+          onClick={() => setCurrentView('INTEGRACION')}
+          className={`sidebar-link ${currentView === 'INTEGRACION' ? 'active' : ''}`}
+        >
+          🔌 Integración
+        </button>
+
+        {/* CONTROL DE ROL: Exclusivo del Analista */}
         {currentUser.rol === 'ANALISTA' && (
           <button 
             onClick={() => setCurrentView('USUARIOS')}
@@ -49,7 +66,6 @@ export default function Sidebar() {
         )}
       </nav>
 
-      {/* Footer del perfil calcado al prototipo */}
       <div className="sidebar-footer">
         <div className="sidebar-profile-card">
           <div className="sidebar-avatar">

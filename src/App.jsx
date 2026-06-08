@@ -5,25 +5,30 @@ import { AppContext } from './context/AppContext';
 // Importación de Componentes y Vistas
 import Login from './views/Login/Login';
 import Sidebar from './components/Sidebar/Sidebar';
+import Inicio from './views/Inicio/Inicio';
 
 import './App.css';
 
 export default function App() {
   const { currentUser, currentView } = useContext(AppContext);
 
-  // Función interna para decidir qué pantalla mostrar a la derecha del Sidebar
+  // Selector dinámico de pantallas
   const renderActiveView = () => {
     switch (currentView) {
       case 'INICIO':
-        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Inicio</h2><p>Acá irá el calendario y la grilla horaria.</p></div>;
+        return <Inicio />;
       case 'RESERVAS':
-        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Reservas</h2><p>Acá irá la tabla y modales de clientes.</p></div>;
+        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Módulo de Reservas</h2><p>Próximamente: Grilla horaria sincronizada por salas.</p></div>;
       case 'PAGOS':
-        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Pagos</h2><p>Acá irán las cajas, KPIs financieros y transacciones.</p></div>;
+        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Módulo de Pagos</h2><p>Próximamente: Caja chica, señas y saldos pendientes.</p></div>;
+      case 'FACTURACION':
+        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Módulo de Facturación</h2><p>Próximamente: Historial de comprobantes y cierres de caja.</p></div>;
+      case 'INTEGRACION':
+        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Módulo de Integración</h2><p>Próximamente: Estado de conexión con Booknetic y Webhooks.</p></div>;
       case 'USUARIOS':
-        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Usuarios</h2><p>Panel exclusivo del Analista para dar de alta accesos.</p></div>;
+        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Control de Personal</h2><p>Panel exclusivo de Analista para gestionar altas y permisos.</p></div>;
       default:
-        return <div style={{ color: '#0f172a' }}><h2>Pantalla de Inicio</h2></div>;
+        return <Inicio />;
     }
   };
 
@@ -33,10 +38,7 @@ export default function App() {
         <Login />
       ) : (
         <>
-          {/* Menu Lateral Fijo */}
           <Sidebar />
-          
-          {/* Contenedor de la pantalla seleccionada */}
           <main className="main-content" style={{ padding: '40px', backgroundColor: '#ffffff' }}>
             {renderActiveView()}
           </main>
