@@ -288,3 +288,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Marca visual destacada para el día de hoy en el sistema */
+.mini-day-cell.es-hoy-sistema {
+  background: #334155 !important; /* Gris oscuro industrial */
+  color: #ffffff !important;
+  font-weight: 800;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}

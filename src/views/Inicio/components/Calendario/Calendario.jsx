@@ -3,46 +3,37 @@ import React, { useState } from 'react';
 import './Calendario.css';
 
 export default function Calendario({ reservations = [] }) {
-  // Inicializamos el calendario con la fecha actual del sistema
+  // Inicializamos el calendario con la fecha actual del sistema (Junio 2026)
   const [fechaBase, setFechaBase] = useState(new Date());
-  const [vista, setVista] = useState('Semana'); // 'Día' o 'Semana'
+  const [vista, setVista] = useState('Semana');
 
   const año = fechaBase.getFullYear();
-  const mes = fechaBase.getMonth(); // 0 = Enero, 11 = Diciembre
+  const mes = fechaBase.getMonth(); // 0 = Enero, 5 = Junio, etc.
 
-  // ---- LÓGICA DEL MINI CALENDARIO MENSUAL (IZQUIERDA) ----
+  // ---- LÓGICA DEL MINI CALENDARIO MENSUAL ----
   const nombreMeses = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
-  // Cantidad de días del mes actual y del mes anterior (para rellenar si querés)
   const totalDiasMes = new Date(año, mes + 1, 0).getDate();
-  // Primer día del mes (0 = Domingo, 1 = Lunes, etc.) -> Lo ajustamos para que empiece en Lunes (0)
   let primerDiaSemana = new Date(año, mes, 1).getDay();
   primerDiaSemana = primerDiaSemana === 0 ? 6 : primerDiaSemana - 1; // Ajuste Lunes a Domingo
 
-  // Crear array de días del mes [1, 2, 3, ... totalDiasMes]
   const diasMesArray = Array.from({ length: totalDiasMes }, (_, i) => i + 1);
-  // Crear casilleros vacíos para el desfasaje del inicio de mes
   const espaciosVacios = Array.from({ length: primerDiaSemana }, (_, i) => i);
 
-  // Manejo de navegación de meses
   const mesAnterior = () => setFechaBase(new Date(año, mes - 1, 1));
   const mesSiguiente = () => setFechaBase(new Date(año, mes + 1, 1));
 
-
-  // ---- LÓGICA DE LA GRILLA SEMANAL (DERECHA) ----
-  // Calculamos los 7 días de la semana actual enfocada por el calendario
+  // ---- LÓGICA DE LA GRILLA SEMANAL ----
   const obtenerDiasSemanaActual = () => {
     const dias = [];
     const fechaAux = new Date(fechaBase);
     const diaSemanaActual = fechaAux.getDay();
     const diferenciaALunes = diaSemanaActual === 0 ? -6 : 1 - diaSemanaActual;
     
-    // Seteamos el lunes de esta semana
     fechaAux.setDate(fechaAux.getDate() + diferenciaALunes);
-
     const nombresDiasCortos = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
     for (let i = 0; i < 7; i++) {
@@ -64,15 +55,25 @@ export default function Calendario({ reservations = [] }) {
   const diasSemana = obtenerDiasSemanaActual();
   const horas = ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
 
-  // Filtrado de celdas dinámico en base a los datos de reservations reales
+// FILTRADO ULTRA-ROBUSTO: Elimina duplicados idénticos en caliente por ID
   const obtenerReservasCelda = (fechaStr, hora) => {
-    return reservations.filter(res => {
-      const horaInicio = res.hora?.split(' ')[0] || res.horario?.split(' ')[0];
-      return res.fecha === fechaStr && horaInicio === hora;
+    const encontradas = reservations.filter(res => {
+      if (!res.fecha || !res.hora) return false;
+      const horaInicioReserva = res.hora.split(' ')[0].trim();
+      return res.fecha.trim() === fechaStr.trim() && horaInicioReserva === hora.trim();
+    });
+
+    // Filtramos para dejar solo elementos con IDs únicos en este slot
+    const idsVistos = new Set();
+    return encontradas.filter(res => {
+      if (idsVistos.has(res.id)) {
+        return false; // Si el ID ya se dibujó en la celda, lo vuela
+      }
+      idsVistos.add(res.id);
+      return true;
     });
   };
 
-  // Navegación de semanas en la agenda principal
   const semanaAnterior = () => {
     const nuevaFecha = new Date(fechaBase);
     nuevaFecha.setDate(nuevaFecha.getDate() - 7);
@@ -85,7 +86,6 @@ export default function Calendario({ reservations = [] }) {
     setFechaBase(nuevaFecha);
   };
 
-  // Verifica si un día del mini calendario mensual tiene alguna reserva registrada
   const diaTieneReservas = (dia) => {
     const mesStr = String(mes + 1).padStart(2, '0');
     const diaStr = String(dia).padStart(2, '0');
@@ -95,13 +95,16 @@ export default function Calendario({ reservations = [] }) {
 
   return (
     <div className="calendario-reservas-container">
-      {/* Encabezado del Módulo */}
       <div className="cal-main-header">
         <h2>Calendario de Reservas</h2>
+        <div className="toggle-vista-buttons">
+          <button type="button" className={vista === 'Día' ? 'active' : ''} onClick={() => setVista('Día')}>Día</button>
+          <button type="button" className={vista === 'Semana' ? 'active' : ''} onClick={() => setVista('Semana')}>Semana</button>
+        </div>
       </div>
 
       <div className="cal-layout-grid">
-        {/* COLUMNA IZQUIERDA: Mini Calendario Mensual Autocalculado */}
+        {/* COLUMNA IZQUIERDA */}
         <aside className="cal-sidebar-left">
           <div className="mini-month-header">
             <button type="button" className="arrow-btn" onClick={mesAnterior}>&lt;</button>
@@ -120,13 +123,19 @@ export default function Calendario({ reservations = [] }) {
             
             {diasMesArray.map(dia => {
               const tieneTurno = diaTieneReservas(dia);
-              // Marcamos si este día pertenece a la semana que se está mostrando a la derecha
               const perteneceASemanaActual = diasSemana.some(d => d.numero === dia && new Date(d.fechaStr).getMonth() === mes);
+              
+              // IDENTIFICACIÓN DE HOY: Comparamos día, mes y año actuales
+              const hoyObjeto = new Date();
+              const esHoySistema = hoyObjeto.getDate() === dia && hoyObjeto.getMonth() === mes && hoyObjeto.getFullYear() === año;
 
               return (
                 <span 
                   key={dia} 
-                  className={`mini-day-cell ${tieneTurno ? 'con-reserva' : ''} ${perteneceASemanaActual ? 'highlight-orange' : ''}`}
+                  className={`mini-day-cell 
+                    ${tieneTurno ? 'con-reserva' : ''} 
+                    ${perteneceASemanaActual ? 'highlight-orange' : ''} 
+                    ${esHoySistema ? 'es-hoy-sistema' : ''}`}
                 >
                   {dia}
                 </span>
@@ -142,7 +151,7 @@ export default function Calendario({ reservations = [] }) {
           </div>
         </aside>
 
-        {/* COLUMNA DERECHA: Grilla de Agenda Semanal Dinámica */}
+        {/* COLUMNA DERECHA */}
         <section className="cal-agenda-main">
           <div className="agenda-week-subheader">
             <div className="week-info-title">

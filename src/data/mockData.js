@@ -82,6 +82,243 @@ export const initialReservations = [
     estado: "Confirmada",
     pago: "Pagado",
     canal: "Web"
+  },
+  // --- SÁBADO 20 DE JUNIO (Simultaneidad total a las 16:00 y 19:00) ---
+  {
+    id: "REV-101",
+    cliente: "Andrés Mendoza",
+    sala: "Laboratorio del Dr. Chaos",
+    fecha: "2026-06-20",
+    hora: "16:00",
+    personas: 4,
+    estado: "Completada",
+    pago: "Pagado",
+    canal: "Web"
+  },
+  {
+    id: "REV-102",
+    cliente: "Mariana Torres",
+    sala: "La Mansión Embrujada",
+    fecha: "2026-06-20",
+    hora: "16:00", // Al mismo tiempo que Andrés
+    personas: 6,
+    estado: "Confirmada",
+    pago: "Pagado",
+    canal: "WhatsApp"
+  },
+  {
+    id: "REV-103",
+    cliente: "Carlos Giménez",
+    sala: "Misterio del Faraón",
+    fecha: "2026-06-20",
+    hora: "19:00",
+    personas: 3,
+    estado: "Confirmada",
+    pago: "Pagado",
+    canal: "Web"
+  },
+  {
+    id: "REV-104",
+    cliente: "Gaston Peralta",
+    sala: "Atraco al Banco Central",
+    fecha: "2026-06-20",
+    hora: "19:00", // Al mismo tiempo que Carlos
+    personas: 5,
+    estado: "Confirmada",
+    pago: "No Pagado",
+    canal: "WhatsApp"
+  },
+
+// --- PASADO: SÁBADO 6 DE JUNIO (Acá sí es lógico que estén Completadas) ---
+  {
+    id: "REV-098",
+    cliente: "Mariano Liniers",
+    sala: "Atraco al Banco Central",
+    fecha: "2026-06-06",
+    hora: "16:00",
+    personas: 5,
+    estado: "Completada", // Correcto: Ya pasó
+    pago: "Pagado",
+    canal: "Web"
+  },
+  {
+    id: "REV-099",
+    cliente: "Florencia Varela",
+    sala: "La Mansión Embrujada",
+    fecha: "2026-06-06",
+    hora: "18:00",
+    personas: 4,
+    estado: "Completada", // Correcto: Ya pasó
+    pago: "Pagado",
+    canal: "WhatsApp"
+  },
+
+  // --- FUTURO: SÁBADO 20 DE JUNIO (Turnos en paralelo a las 16:00 y 19:00) ---
+  {
+    id: "REV-101",
+    cliente: "Andrés Mendoza",
+    sala: "Laboratorio del Dr. Chaos",
+    fecha: "2026-06-20",
+    hora: "16:00",
+    personas: 4,
+    estado: "Confirmada", // CORREGIDO: Es futuro, está agendada
+    pago: "Pagado",
+    canal: "Web"
+  },
+  {
+    id: "REV-102",
+    cliente: "Mariana Torres",
+    sala: "La Mansión Embrujada",
+    fecha: "2026-06-20",
+    hora: "16:00", 
+    personas: 6,
+    estado: "Confirmada", // CORREGIDO: Es futuro
+    pago: "Pagado",
+    canal: "WhatsApp"
+  },
+  {
+    id: "REV-103",
+    cliente: "Carlos Giménez",
+    sala: "Misterio del Faraón",
+    fecha: "2026-06-20",
+    hora: "19:00",
+    personas: 3,
+    estado: "Confirmada",
+    pago: "Pagado",
+    canal: "Web"
+  },
+  {
+    id: "REV-104",
+    cliente: "Gaston Peralta",
+    sala: "Atraco al Banco Central",
+    fecha: "2026-06-20",
+    hora: "19:00", 
+    personas: 5,
+    estado: "Confirmada",
+    pago: "No Pagado",
+    canal: "WhatsApp"
+  },
+
+  // --- FUTURO: DOMINGO 21 DE JUNIO ---
+  {
+    id: "REV-105",
+    cliente: "Gonzalo Dalto",
+    sala: "Misterio del Faraón",
+    fecha: "2026-06-21",
+    hora: "18:00",
+    personas: 2,
+    estado: "Confirmada",
+    pago: "No Pagado",
+    canal: "Web"
+  },
+
+  // --- FUTURO: LUNES 22 DE JUNIO ---
+  {
+    id: "REV-106",
+    cliente: "Estefanía Paz",
+    sala: "Atraco al Banco Central",
+    fecha: "2026-06-22",
+    hora: "15:00",
+    personas: 4,
+    estado: "Cancelada", // Lógico: El cliente ya avisó que no viene
+    pago: "No Pagado",
+    canal: "WhatsApp"
+  },
+  {
+    id: "REV-107",
+    cliente: "Rodrigo Palacios",
+    sala: "Frankenstein",
+    fecha: "2026-06-22",
+    hora: "20:00",
+    personas: 5,
+    estado: "Confirmada",
+    pago: "Pagado",
+    canal: "Web"
+  },
+
+  // --- FUTURO: MARTES 23 DE JUNIO ---
+  {
+    id: "REV-108",
+    cliente: "Clara Benítez",
+    sala: "La Mansión Embrujada",
+    fecha: "2026-06-23",
+    hora: "17:00",
+    personas: 4,
+    estado: "Confirmada", // CORREGIDO: Es futuro
+    pago: "Pagado",
+    canal: "Web"
+  },
+
+  // --- FUTURO: JUEVES 25 DE JUNIO ---
+  {
+    id: "REV-109",
+    cliente: "Julieta Rossi",
+    sala: "Misterio del Faraón",
+    fecha: "2026-06-25",
+    hora: "14:00",
+    personas: 3,
+    estado: "Cancelada",
+    pago: "No Pagado",
+    canal: "Web"
+  },
+
+  // --- FUTURO: VIERNES 26 DE JUNIO (Simultaneidad a las 20:00) ---
+  {
+    id: "REV-110",
+    cliente: "Milagros Sosa",
+    sala: "Frankenstein",
+    fecha: "2026-06-26",
+    hora: "15:00",
+    personas: 4,
+    estado: "Confirmada",
+    pago: "Pagado",
+    canal: "Web"
+  },
+  {
+    id: "REV-111",
+    cliente: "Bruno Díaz",
+    sala: "La Mansión Embrujada",
+    fecha: "2026-06-26",
+    hora: "20:00",
+    personas: 6,
+    estado: "Confirmada", // CORREGIDO: Es futuro
+    pago: "Pagado",
+    canal: "Web"
+  },
+  {
+    id: "REV-112",
+    cliente: "Sofía Herrera",
+    sala: "Laboratorio del Dr. Chaos",
+    fecha: "2026-06-26",
+    hora: "20:00", 
+    personas: 4,
+    estado: "Confirmada",
+    pago: "No Pagado",
+    canal: "WhatsApp"
+  },
+
+  // --- FUTURO: SÁBADO 27 DE JUNIO ---
+  {
+    id: "REV-113",
+    cliente: "Lucas Gentile",
+    sala: "Misterio del Faraón",
+    fecha: "2026-06-27",
+    hora: "17:00",
+    personas: 2,
+    estado: "Confirmada",
+    pago: "Pagado",
+    canal: "Web"
+  },
+  {
+    id: "REV-114",
+    cliente: "Daniela Medina",
+    sala: "Atraco al Banco Central",
+    fecha: "2026-06-27",
+    hora: "17:00", 
+    personas: 5,
+    estado: "Confirmada",
+    pago: "Pagado",
+    canal: "WhatsApp"
   }
 ];
 
