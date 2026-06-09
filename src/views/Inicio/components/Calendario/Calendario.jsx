@@ -3,22 +3,22 @@ import React, { useState } from 'react';
 import './Calendario.css';
 
 export default function Calendario({ reservations = [] }) {
-  // Inicializamos el calendario con la fecha actual del sistema (Junio 2026)
+  // Al usar new Date() sin parámetros, arranca SIEMPRE en el día, mes y año actual real
   const [fechaBase, setFechaBase] = useState(new Date());
   const [vista, setVista] = useState('Semana');
 
   const año = fechaBase.getFullYear();
-  const mes = fechaBase.getMonth(); // 0 = Enero, 5 = Junio, etc.
+  const mes = fechaBase.getMonth(); 
 
-  // ---- LÓGICA DEL MINI CALENDARIO MENSUAL ----
   const nombreMeses = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
+  // ---- LÓGICA DEL MINI CALENDARIO MENSUAL (IZQUIERDA) ----
   const totalDiasMes = new Date(año, mes + 1, 0).getDate();
   let primerDiaSemana = new Date(año, mes, 1).getDay();
-  primerDiaSemana = primerDiaSemana === 0 ? 6 : primerDiaSemana - 1; // Ajuste Lunes a Domingo
+  primerDiaSemana = primerDiaSemana === 0 ? 6 : primerDiaSemana - 1; 
 
   const diasMesArray = Array.from({ length: totalDiasMes }, (_, i) => i + 1);
   const espaciosVacios = Array.from({ length: primerDiaSemana }, (_, i) => i);
@@ -26,7 +26,7 @@ export default function Calendario({ reservations = [] }) {
   const mesAnterior = () => setFechaBase(new Date(año, mes - 1, 1));
   const mesSiguiente = () => setFechaBase(new Date(año, mes + 1, 1));
 
-  // ---- LÓGICA DE LA GRILLA SEMANAL ----
+  // ---- LÓGICA DE LA GRILLA SEMANAL (DERECHA) ----
   const obtenerDiasSemanaActual = () => {
     const dias = [];
     const fechaAux = new Date(fechaBase);
@@ -55,7 +55,6 @@ export default function Calendario({ reservations = [] }) {
   const diasSemana = obtenerDiasSemanaActual();
   const horas = ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
 
-// FILTRADO ULTRA-ROBUSTO: Elimina duplicados idénticos en caliente por ID
   const obtenerReservasCelda = (fechaStr, hora) => {
     const encontradas = reservations.filter(res => {
       if (!res.fecha || !res.hora) return false;
@@ -63,12 +62,9 @@ export default function Calendario({ reservations = [] }) {
       return res.fecha.trim() === fechaStr.trim() && horaInicioReserva === hora.trim();
     });
 
-    // Filtramos para dejar solo elementos con IDs únicos en este slot
     const idsVistos = new Set();
     return encontradas.filter(res => {
-      if (idsVistos.has(res.id)) {
-        return false; // Si el ID ya se dibujó en la celda, lo vuela
-      }
+      if (idsVistos.has(res.id)) return false;
       idsVistos.add(res.id);
       return true;
     });
@@ -97,14 +93,9 @@ export default function Calendario({ reservations = [] }) {
     <div className="calendario-reservas-container">
       <div className="cal-main-header">
         <h2>Calendario de Reservas</h2>
-        <div className="toggle-vista-buttons">
-          <button type="button" className={vista === 'Día' ? 'active' : ''} onClick={() => setVista('Día')}>Día</button>
-          <button type="button" className={vista === 'Semana' ? 'active' : ''} onClick={() => setVista('Semana')}>Semana</button>
-        </div>
       </div>
 
       <div className="cal-layout-grid">
-        {/* COLUMNA IZQUIERDA */}
         <aside className="cal-sidebar-left">
           <div className="mini-month-header">
             <button type="button" className="arrow-btn" onClick={mesAnterior}>&lt;</button>
@@ -125,7 +116,6 @@ export default function Calendario({ reservations = [] }) {
               const tieneTurno = diaTieneReservas(dia);
               const perteneceASemanaActual = diasSemana.some(d => d.numero === dia && new Date(d.fechaStr).getMonth() === mes);
               
-              // IDENTIFICACIÓN DE HOY: Comparamos día, mes y año actuales
               const hoyObjeto = new Date();
               const esHoySistema = hoyObjeto.getDate() === dia && hoyObjeto.getMonth() === mes && hoyObjeto.getFullYear() === año;
 
@@ -151,7 +141,6 @@ export default function Calendario({ reservations = [] }) {
           </div>
         </aside>
 
-        {/* COLUMNA DERECHA */}
         <section className="cal-agenda-main">
           <div className="agenda-week-subheader">
             <div className="week-info-title">
@@ -186,19 +175,23 @@ export default function Calendario({ reservations = [] }) {
                       const reservasEnCelda = obtenerReservasCelda(d.fechaStr, hora);
                       return (
                         <td key={d.fechaStr} className="agenda-slot-cell">
-                          {reservasEnCelda.map((res, index) => {
-                            let estadoClase = 'card-orange'; 
-                            if (res.estado === 'Completada') estadoClase = 'card-blue';
-                            if (res.estado === 'Cancelada') estadoClase = 'card-gray';
+                          {reservasEnCelda.length > 0 && (
+                            <div className="cards-simultaneas-container">
+                              {reservasEnCelda.map((res, index) => {
+                                let estadoClase = 'card-orange'; 
+                                if (res.estado === 'Completada') estadoClase = 'card-blue';
+                                if (res.estado === 'Cancelada') estadoClase = 'card-gray';
 
-                            return (
-                              <div key={res.id || index} className={`reservation-agenda-card ${estadoClase}`}>
-                                <div className="res-time-box">{res.hora || '14:00'}</div>
-                                <div className="res-client-name">{res.cliente}</div>
-                                <div className="res-room-name">{res.sala}</div>
-                              </div>
-                            );
-                          })}
+                                return (
+                                  <div key={res.id || index} className={`reservation-agenda-card ${estadoClase}`}>
+                                    <div className="res-time-box">{res.hora} hs</div>
+                                    <div className="res-client-name">{res.cliente} ({res.personas}p)</div>
+                                    <div className="res-room-name">{res.sala}</div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </td>
                       );
                     })}

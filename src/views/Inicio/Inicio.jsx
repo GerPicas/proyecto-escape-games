@@ -1,85 +1,83 @@
-// src/views/Inicio/Inicio.jsx
-import React, { useContext, useState, useEffect } from 'react';
-import { AppContext } from '../../context/AppContext';
-
-// Importación del componente real con sus props exactas: label y value
+import React, { useContext } from 'react';
+import { AppContext } from '../../context/AppContext'; // Import correcto con llaves
 import MetricCard from '../../components/MetricCard/MetricCard';
-
-// Importación de Subcomponentes locales
 import Calendario from './components/Calendario/Calendario';
+import './Inicio.css'; // Mantenemos tus estilos originales de la vista
 import InfraStatus from './components/InfraStatus/InfraStatus';
 
-import './Inicio.css';
-
 export default function Inicio() {
-  const { currentUser, reservations = [] } = useContext(AppContext);
+  // 1. Extraemos las reservas reales directamente del Contexto
+  const { reservations } = useContext(AppContext);
 
-  const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const fechaHoyStr = new Date().toLocaleDateString('es-AR', opcionesFecha);
+  // Variables de control estables para que tus componentes hijos no tiren un ReferenceError
+  const fechaAuditoria = "2026-06-08";
+  const setFechaAuditoria = () => {};
 
-  // ESTADO DE JORNADA AUDITADA: Arranca con la primera fecha con reservas
-  const [fechaAuditoria, setFechaAuditoria] = useState(() => {
-    return reservations.length > 0 ? reservations[0].fecha : new Date().toISOString().split('T')[0];
+  // ---- FILTROS OPERATIVOS MENSUALES (DESDE HOY HASTA FIN DE MES) ----
+  const hoyObjeto = new Date();
+  const añoActual = hoyObjeto.getFullYear();
+  const mesActual = hoyObjeto.getMonth() + 1;
+  const diaActual = hoyObjeto.getDate();
+
+  const mesFormateado = String(mesActual).padStart(2, '0');
+  const stringHoy = `${añoActual}-${mesFormateado}-${String(diaActual).padStart(2, '0')}`;
+  const ultimoDiaMes = new Date(añoActual, mesActual, 0).getDate();
+  const stringFinDeMes = `${añoActual}-${mesFormateado}-${String(ultimoDiaMes).padStart(2, '0')}`;
+
+  // Filtrado limpio de tu array por rango alfabético/cronológico de strings
+  const turnosDelMes = reservations.filter(res => {
+    if (!res.fecha) return false;
+    return res.fecha >= stringHoy && res.fecha <= stringFinDeMes;
   });
 
-  useEffect(() => {
-    if (reservations.length > 0 && !reservations.some(r => r.fecha === fechaAuditoria)) {
-      setFechaAuditoria(reservations[0].fecha);
-    }
-  }, [reservations]);
-
-  // FILTROS OPERATIVOS DIÁMICOS
-  const turnosDeHoy = reservations.filter(res => res.fecha === fechaAuditoria);
-
-  const totalHoy = turnosDeHoy.length;
-  const confirmadosHoy = turnosDeHoy.filter(res => res.estado === 'Confirmada').length;
-  const pendientesHoy = turnosDeHoy.filter(res => res.pago === 'No Pagado' && res.estado !== 'Cancelada').length;
+  // Mapeamos los resultados a tus variables originales exactas
+  const totalHoy = turnosDelMes.length;
+  const confirmadosHoy = turnosDelMes.filter(res => res.estado === 'Confirmada').length;
+  const pendientesHoy = turnosDelMes.filter(res => res.pago === 'No Pagado' && res.estado !== 'Cancelada').length;
 
   return (
-    <div className="inicio-scroll-wrapper">
-      <div className="inicio-container">
-        {/* Encabezado Principal */}
-        <header className="inicio-header">
-          <h1 className="inicio-title">Control de Operaciones</h1>
-          <p className="inicio-date">{fechaHoyStr.charAt(0).toUpperCase() + fechaHoyStr.slice(1)}</p>
-          <p className="inicio-welcome">
-            Sesión activa: <strong>{currentUser?.nombre || 'Usuario'}</strong> ({currentUser?.rol || 'OPERADOR'})
-            <span className="audit-badge">
-              [Jornada Auditada: {fechaAuditoria}]
-            </span>
-          </p>
-        </header>
+    <div className="inicio-container">
+      {/* HEADER ORIGINAL RESTAURADO */}
+      <div className="inicio-header">
+        <h1>Control de Operaciones</h1>
+        <p className="fecha-sistema">
+          Previsión: {hoyObjeto.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })}
+        </p>
+        <span className="sesion-activa">
+          Sesión activa: <strong>Recepción Local</strong> (RECEPCIONISTA)
+        </span>
+      </div>
 
-        {/* BLOQUE 1: Resumen de Turnos Diarios usando TU MetricCard */}
-        <section className="dashboard-section">
-          <h2 className="section-title">Turnos de la Jornada</h2>
-          <div className="operaciones-grid">
-            <MetricCard 
-              label="Turnos Totales" 
-              value={totalHoy} 
-              variant='blue'
-            />
-            <MetricCard 
-              label="Confirmados" 
-              value={confirmadosHoy}
-              variant='green' 
-            />
-            <MetricCard 
-              label="Por Cobrar / Pendientes" 
-              value={pendientesHoy}
-              variant='orange' 
-            />
-          </div>
-        </section>
+{/* GRILLA CON LAS PROPS REALES DEL COMPONENTE: label Y variant */}
+      <div className="operaciones-grid">
+        <MetricCard 
+          label="TURNOS FUTUROS (MES)" 
+          value={totalHoy} 
+          variant="blue" 
+        />
+        <MetricCard 
+          label="CONFIRMADOS" 
+          value={confirmadosHoy} 
+          variant="green" 
+        />
+        <MetricCard 
+          label="POR COBRAR / PENDIENTES" 
+          value={pendientesHoy} 
+          variant="orange" 
+        />
+      </div>
 
-        {/* BLOQUE 2: Calendario Integrado de Control */}
+      {/* SECCIÓN DEL CALENDARIO */}
+      <div className="calendar-section">
         <Calendario 
           reservations={reservations} 
           fechaAuditoria={fechaAuditoria} 
           setFechaAuditoria={setFechaAuditoria} 
         />
+      </div>
 
-        {/* BLOQUE 3: Estado Técnico e Infraestructura */}
+      {/* CONSOLE DE INFRAESTRUCTURA REAL (Tu componente con selectores Web/WhatsApp) */}
+      <div className="infra-section-wrapper">
         <InfraStatus />
       </div>
     </div>
