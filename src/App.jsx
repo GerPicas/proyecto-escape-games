@@ -6,8 +6,13 @@ import { AppContext } from './context/AppContext';
 import Login from './views/Login/Login';
 import Sidebar from './components/Sidebar/Sidebar';
 import Inicio from './views/Inicio/Inicio';
+import Reservas from './views/Reservas/Reservas';
+import Facturacion from './views/Facturacion/Facturacion';
+import Pagos from './views/Pagos/Pagos';
+import Usuarios from './views/Usuarios/Usuarios';
 
 import './App.css';
+import Integraciones from './views/Integraciones/Integraciones';
 
 export default function App() {
   const { currentUser, currentView } = useContext(AppContext);
@@ -18,15 +23,15 @@ export default function App() {
       case 'INICIO':
         return <Inicio />;
       case 'RESERVAS':
-        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Módulo de Reservas</h2><p>Próximamente: Grilla horaria sincronizada por salas.</p></div>;
+        return <Reservas />;
       case 'PAGOS':
-        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Módulo de Pagos</h2><p>Próximamente: Caja chica, señas y saldos pendientes.</p></div>;
+        return <Pagos />;
       case 'FACTURACION':
-        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Módulo de Facturación</h2><p>Próximamente: Historial de comprobantes y cierres de caja.</p></div>;
+        return <Facturacion />;
       case 'INTEGRACION':
-        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Módulo de Integración</h2><p>Próximamente: Estado de conexión con Booknetic y Webhooks.</p></div>;
+        return <Integraciones />;
       case 'USUARIOS':
-        return <div style={{ color: '#0f172a', fontFamily: 'Arial' }}><h2>Control de Personal</h2><p>Panel exclusivo de Analista para gestionar altas y permisos.</p></div>;
+        return <Usuarios />;
       default:
         return <Inicio />;
     }
