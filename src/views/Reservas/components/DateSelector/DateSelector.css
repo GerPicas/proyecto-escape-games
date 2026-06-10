@@ -1,65 +1,88 @@
-.date-selector-wrapper {
+/* src/views/Reservas/components/DateSelector/DateSelector.css */
+
+.ds-wrapper {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 5px 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  font-family: Arial, sans-serif;
 }
 
-.date-nav-btn {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #64748b;
-  width: 38px;
-  height: 38px;
+/* ── Botones < > ── */
+.ds-nav {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 20px;
+  line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
-  transition: all 0.2s ease;
+  padding: 0;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  flex-shrink: 0;
+  user-select: none;
+}
+.ds-nav:hover {
+  background: #eef2ff;
+  border-color: #6366f1;
+  color: #4f46e5;
 }
 
-.date-nav-btn:hover {
-  background: #f8fafc;
-  color: #0f172a;
-  border-color: #94a3b8;
-}
-
-.date-input-container {
+/* ── Label clickeable ── */
+.ds-label-wrapper {
+  position: relative;
+  cursor: pointer;
+  padding: 0 10px;
   display: flex;
   align-items: center;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  height: 38px;
-  padding: 0 10px;
-  border-radius: 6px;
 }
 
-.audit-date-picker {
+.ds-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+  pointer-events: none; /* el click lo captura el <label> */
+}
+
+/* El input nativo queda invisible encima del label
+   para que el picker del browser se abra al clickear */
+.ds-hidden-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
   border: none;
   background: transparent;
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #334155;
-  outline: none;
-  cursor: pointer;
 }
 
-.date-today-btn {
-  background: #f97316;
-  border: none;
-  color: #ffffff;
-  height: 38px;
-  padding: 0 16px;
+/* ── Botón Hoy ── */
+.ds-hoy {
+  padding: 4px 11px;
+  border: 1px solid #c7d2fe;
   border-radius: 6px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
   font-weight: 700;
-  font-size: 0.9rem;
   cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
   margin-left: 4px;
-  transition: background 0.2s ease;
 }
-
-.date-today-btn:hover {
-  background: #ea580c;
+.ds-hoy:hover {
+  background: #e0e7ff;
+  border-color: #6366f1;
 }

@@ -278,3 +278,242 @@
   padding: 3rem !important;
   font-style: italic;
 }
+
+/* ============================================================
+   AGREGAR ESTO AL FINAL DE tu Reservas.css existente
+   src/views/Reservas/Reservas.css  (append al final)
+   ============================================================ */
+
+/* ── Overlay ── */
+.rv-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+/* ── Modal base ── */
+.rv-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  font-family: Arial, sans-serif;
+}
+
+.rv-modal--sm { max-width: 440px; }
+
+/* ── Header ── */
+.rv-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rv-modal-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rv-modal-header--danger {
+  border-bottom-color: #fecaca;
+  background: #fff5f5;
+}
+
+.rv-modal-id {
+  font-size: 13px;
+  font-weight: 400;
+  color: #9ca3af;
+  font-family: monospace;
+}
+
+.rv-modal-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  transition: color 0.1s;
+}
+.rv-modal-close:hover { color: #374151; }
+
+/* ── Body ── */
+.rv-modal-body { padding: 22px; }
+
+/* ── Footer ── */
+.rv-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 22px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ── Info grid (modal ver) ── */
+.rv-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rv-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rv-info-block--full { grid-column: 1 / -1; }
+
+.rv-info-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #9ca3af;
+}
+
+.rv-info-value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+}
+
+.rv-info-value--lg   { font-size: 17px; font-weight: 700; }
+.rv-info-value--mono { font-family: monospace; font-size: 13px; color: #6b7280; }
+
+.rv-info-sub {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ── Form grid (modal editar) ── */
+.rv-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.rv-form-field { display: flex; flex-direction: column; gap: 5px; }
+.rv-form-field--full { grid-column: 1 / -1; }
+
+.rv-form-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+}
+
+.rv-form-input {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  color: #111827;
+  background: #fff;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.rv-form-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ── Eliminar preview ── */
+.rv-eliminar-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.rv-eliminar-icon { font-size: 2.5rem; }
+
+.rv-eliminar-text {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+  margin: 0;
+}
+.rv-eliminar-text strong { color: #111827; }
+
+.rv-eliminar-warn {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ── Botones de modal ── */
+.rv-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #4f46e5;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.rv-btn-primary:hover { background: #4338ca; }
+
+.rv-btn-secondary {
+  padding: 8px 18px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.rv-btn-secondary:hover { background: #f9fafb; }
+
+.rv-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #dc2626;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.rv-btn-danger:hover { background: #b91c1c; }
+
+@media (max-width: 640px) {
+  .rv-info-grid, .rv-form-grid { grid-template-columns: 1fr; }
+}

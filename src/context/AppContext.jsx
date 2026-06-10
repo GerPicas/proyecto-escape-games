@@ -8,10 +8,14 @@ import {
   initialSystemStatus 
 } from '../data/mockData';
 
-// Creamos el contexto
 export const AppContext = createContext();
 
-// Creamos el Proveedor (Provider) que va a envolver a toda la aplicación
+// Devuelve la fecha de hoy en formato "AAAA-MM-DD"
+const isoHoy = () => {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+};
+
 export const AppProvider = ({ children }) => {
   
   // --- ESTADOS DE DATOS (Persistidos en LocalStorage) ---
@@ -40,39 +44,24 @@ export const AppProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : initialSystemStatus;
   });
 
-  // --- ESTADOS DE CONTROL (Navegación, Autenticación y Alertas) ---
+  // --- ESTADOS DE CONTROL ---
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('er_current_user');
     return saved ? JSON.parse(saved) : null;
   });
   
-  const [currentView, setCurrentView] = useState('INICIO'); 
-  const [toastMessage, setToastMessage] = useState('');
+  const [currentView, setCurrentView]       = useState('INICIO'); 
+  const [toastMessage, setToastMessage]     = useState('');
 
-  // --- EFECTOS PARA GUARDAR EN LOCALSTORAGE ---
-  useEffect(() => {
-    localStorage.setItem('er_users', JSON.stringify(users));
-  }, [users]);
+  // ── NUEVO: fecha seleccionada en la Matriz Operativa ──────────────
+  const [fechaAuditoria, setFechaAuditoria] = useState(isoHoy());
+  // ─────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    localStorage.setItem('er_reservations', JSON.stringify(reservations));
-  }, [reservations]);
-
-  useEffect(() => {
-    localStorage.setItem('er_payments', JSON.stringify(payments));
-  }, [payments]);
-
-  useEffect(() => {
-    localStorage.setItem('er_metrics', JSON.stringify(metrics));
-  }, [metrics]);
-
-// --- EFECTO ADICIONAL: Suavizado para que NO te congele el scroll al renderizar ---
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    // Comentamos esta línea temporalmente si tu layout maneja el scroll de forma global
-    // const mainContent = document.querySelector('.main-content');
-    // if (mainContent) mainContent.scrollTop = 0;
-  }, [currentView]);
+  // --- EFECTOS LOCALSTORAGE ---
+  useEffect(() => { localStorage.setItem('er_users',         JSON.stringify(users));        }, [users]);
+  useEffect(() => { localStorage.setItem('er_reservations',  JSON.stringify(reservations)); }, [reservations]);
+  useEffect(() => { localStorage.setItem('er_payments',      JSON.stringify(payments));     }, [payments]);
+  useEffect(() => { localStorage.setItem('er_metrics',       JSON.stringify(metrics));      }, [metrics]);
 
   useEffect(() => {
     if (currentUser) {
@@ -82,24 +71,21 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  // --- EFECTO ADICIONAL: Resetear scroll al cambiar de vista ---
+  // Reset scroll al cambiar de vista
   useEffect(() => {
     window.scrollTo(0, 0);
     const mainContent = document.querySelector('.main-content');
     if (mainContent) mainContent.scrollTop = 0;
   }, [currentView]);
 
-  // --- FUNCIONES GLOBALES COMPARTIDAS ---
-  const triggerToast = (msg) => {
-    setToastMessage(msg);
-  };
+  // --- FUNCIONES GLOBALES ---
+  const triggerToast = (msg) => setToastMessage(msg);
 
   const logout = () => {
     setCurrentUser(null);
-    setCurrentView('INICIO'); // Resetea la vista por defecto para el próximo login
+    setCurrentView('INICIO');
   };
 
-  // Todo lo que metamos en el 'value' va a estar accesible globalmente
   return (
     <AppContext.Provider value={{
       users, setUsers,
@@ -111,7 +97,9 @@ export const AppProvider = ({ children }) => {
       currentView, setCurrentView,
       toastMessage, setToastMessage,
       triggerToast,
-      logout
+      logout,
+      // ── NUEVO ──
+      fechaAuditoria, setFechaAuditoria,
     }}>
       {children}
     </AppContext.Provider>

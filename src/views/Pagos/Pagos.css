@@ -1,55 +1,56 @@
 /* src/views/Pagos/Pagos.css */
 
-.pagos-container {
+.pg-container {
   padding: 2rem;
   background-color: #f8fafc;
   min-height: 100vh;
   max-width: 1400px;
 }
 
-.pagos-header {
-  margin-bottom: 1.5rem;
+/* ── Header ── */
+.pg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
 }
 
-.pagos-title {
+.pg-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #0f172a;
   margin: 0 0 0.25rem;
 }
 
-.pagos-subtitle {
+.pg-subtitle {
   font-size: 0.85rem;
   color: #94a3b8;
   margin: 0;
   font-weight: 600;
 }
 
-/* KPIs Financieros (Adaptados a la estética clara) */
-.pagos-kpis {
+/* ── KPIs (Mapeados dinámicamente con inline styles para bordes) ── */
+.pg-kpis {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
   margin-bottom: 1.75rem;
 }
 
-.kpi-card {
+.pg-kpi {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
   padding: 1.25rem 1.5rem;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  border-left-width: 4px; /* El color viene por style inline del JSX */
   background: #ffffff;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
-.kpi-card--ingreso  { border-left: 4px solid #16a34a; }
-.kpi-card--egreso   { border-left: 4px solid #dc2626; }
-.kpi-card--neto     { border-left: 4px solid #2563eb; }
-.kpi-card--semanal  { border-left: 4px solid #06b6d4; }
-
-.kpi-label {
+.pg-kpi-label {
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -57,21 +58,21 @@
   color: #94a3b8;
 }
 
-.kpi-value {
+.pg-kpi-value {
   font-size: 1.4rem;
   font-weight: 700;
   color: #0f172a;
 }
 
-/* Menú de pestañas (Tabs) */
-.pagos-tabs {
+/* ── Tabs ── */
+.pg-tabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.25rem;
   border-bottom: 1px solid #e2e8f0;
 }
 
-.tab-btn {
+.pg-tab {
   padding: 0.6rem 1.25rem;
   background: none;
   border: none;
@@ -84,17 +85,17 @@
   transition: color 0.15s, border-color 0.15s;
 }
 
-.tab-btn:hover { 
-  color: #0f172a; 
+.pg-tab:hover {
+  color: #0f172a;
 }
 
-.tab-btn--active {
+.pg-tab--active {
   color: #f97316;
   border-bottom-color: #f97316;
 }
 
-/* Tabla de Movimientos */
-.tabla-wrapper {
+/* ── Tabla Movimientos ── */
+.pg-tabla-wrapper {
   overflow-x: auto;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
@@ -102,18 +103,18 @@
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
-.tabla-pagos {
+.pg-tabla {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
 
-.tabla-pagos thead tr {
+.pg-tabla thead tr {
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
 }
 
-.tabla-pagos th {
+.pg-tabla th {
   padding: 1rem 1.25rem;
   text-align: left;
   color: #94a3b8;
@@ -124,49 +125,50 @@
   white-space: nowrap;
 }
 
-.tabla-pagos tbody tr {
+.pg-tabla tbody tr {
   border-bottom: 1px solid #f1f5f9;
   transition: background 0.12s;
 }
 
-.tabla-pagos tbody tr:last-child { 
-  border-bottom: none; 
+.pg-tabla tbody tr:last-child {
+  border-bottom: none;
 }
 
-.tabla-pagos tbody tr:hover { 
-  background: #f8fafc; 
+.pg-tabla tbody tr:hover {
+  background: #f8fafc;
 }
 
-.tabla-pagos td {
+.pg-tabla td {
   padding: 1rem 1.25rem;
   color: #334155;
   vertical-align: middle;
 }
 
-.td-id { 
-  color: #94a3b8; 
-  font-family: monospace; 
-  font-size: 0.8rem; 
+/* Clases específicas de celdas */
+.td-mono {
+  color: #94a3b8;
+  font-family: monospace;
+  font-size: 0.8rem;
 }
 
-.td-cliente { 
-  font-weight: 700; 
+.td-bold {
+  font-weight: 700;
   color: #334155;
 }
 
-.td-monto { 
-  font-weight: 700; 
-  color: #0f172a; 
+.td-monto {
+  font-weight: 700;
+  color: #0f172a;
 }
 
-.tabla-empty {
+.pg-empty {
   text-align: center;
   color: #94a3b8;
   font-weight: 600;
   padding: 3rem !important;
 }
 
-/* Sistema Unificado de Badges */
+/* ── Badges Dinámicos ── */
 .badge {
   display: inline-block;
   padding: 4px 10px;
@@ -176,47 +178,40 @@
   white-space: nowrap;
 }
 
-/* Estados de Transacción */
-.badge--pagado { 
-  background: #f0fdf4; 
-  color: #16a34a; 
+/* Estados */
+.badge--pagado {
+  background: #f0fdf4;
+  color: #16a34a;
   border: 1px solid #bbf7d0;
 }
 
-.badge--pendiente { 
-  background: #fff7ed; 
-  color: #c2410c; 
+.badge--pendiente {
+  background: #fff7ed;
+  color: #c2410c;
   border: 1px solid #ffedd5;
 }
 
-.badge--reembolsado { 
-  background: #f1f5f9; 
-  color: #475569; 
+.badge--reembolsado {
+  background: #f1f5f9;
+  color: #475569;
   border: 1px solid #e2e8f0;
 }
 
-/* Tipos de Flujo */
-.badge--ingreso { 
-  background: #f0fdf4; 
-  color: #16a34a; 
+/* Tipos */
+.badge--ingreso {
+  background: #f0fdf4;
+  color: #16a34a;
   border: 1px solid #bbf7d0;
 }
 
-.badge--egreso { 
-  background: #fef2f2; 
-  color: #dc2626; 
+.badge--egreso {
+  background: #fef2f2;
+  color: #dc2626;
   border: 1px solid #fee2e2;
 }
 
-/* Métodos de Pago */
-.badge--metodo { 
-  background: #eff6ff; 
-  color: #2563eb; 
-  border: 1px solid #bfdbfe;
-}
-
-/* Acciones Sutiles */
-.accion-btn {
+/* ── Botones de Acción (Font Awesome) ── */
+.rv-btn {
   width: 32px;
   height: 32px;
   border-radius: 6px;
@@ -227,15 +222,17 @@
   align-items: center;
   justify-content: center;
   font-size: 0.85rem;
-  transition: background 0.12s, border-color 0.12s;
+  color: #64748b;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
 }
 
-.accion-btn--editar:hover { 
-  background: #f1f5f9; 
-  border-color: #cbd5e1; 
+.rv-btn--editar:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #f97316;
 }
 
-/* Modales de Administración */
+/* ── Modales ── */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -283,12 +280,13 @@
   padding: 4px;
   transition: color 0.12s;
 }
-.modal-close:hover { 
-  color: #334155; 
+
+.modal-close:hover {
+  color: #334155;
 }
 
-.modal-body { 
-  padding: 24px; 
+.modal-body {
+  padding: 24px;
 }
 
 .modal-footer {
@@ -302,22 +300,21 @@
   border-bottom-right-radius: 8px;
 }
 
-/* Estructura del Formulario */
+/* ── Formularios internos de los Modales ── */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
-  margin-bottom: 1.5rem;
 }
 
-.form-field { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 6px; 
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.form-field--full { 
-  grid-column: 1 / -1; 
+.form-field--full {
+  grid-column: 1 / -1;
 }
 
 .form-label {
@@ -339,36 +336,16 @@
   box-sizing: border-box;
 }
 
-.form-input:focus { 
+.form-input:focus {
   border-color: #f97316;
   background-color: #ffffff;
 }
 
-/* Leyendas e Informativos inferiores */
-.metodos-legend {
-  margin-top: 1.25rem;
-  padding: 12px 16px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+select.form-input {
+  cursor: pointer;
 }
 
-.legend-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-  margin: 0 0 0.6rem;
-}
-
-.legend-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-/* Acciones del Formulario (Naranja Corporativo) */
+/* ── Botones del Sistema (Naranja Corporativo) ── */
 .btn-primary {
   padding: 10px 20px;
   background: #f97316;
@@ -379,10 +356,11 @@
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
-.btn-primary:hover { 
-  background: #ea580c; 
+.btn-primary:hover {
+  background: #ea580c;
 }
 
 .btn-secondary {
@@ -397,18 +375,31 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.btn-secondary:hover { 
+.btn-secondary:hover {
   background: #f8fafc;
   color: #0f172a;
 }
 
-/* Adaptabilidad Responsiva */
+/* ── Responsive ── */
 @media (max-width: 1024px) {
-  .pagos-kpis { grid-template-columns: repeat(2, 1fr); }
+  .pg-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 640px) {
-  .pagos-container { padding: 1rem; }
-  .pagos-kpis { grid-template-columns: 1fr; }
-  .form-grid { grid-template-columns: 1fr; }
+  .pg-container {
+    padding: 1rem;
+  }
+  .pg-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .pg-kpis {
+    grid-template-columns: 1fr;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }

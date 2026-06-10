@@ -1,73 +1,102 @@
+// src/views/Reservas/Reservas.jsx
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
 import DateSelector from './components/DateSelector/DateSelector';
 import DispoGrid from './components/DispoGrid/DispoGrid';
 import MetricCard from '../../components/MetricCard/MetricCard';
 import './Reservas.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function Reservas() {
-  // Consumimos el estado global real
-  const { reservations = [], fechaAuditoria } = useContext(AppContext);
+  const { reservations = [], setReservations, fechaAuditoria, triggerToast } = useContext(AppContext);
 
-  // States para la barra de herramientas (Buscador y filtro por estado)
-  const [busqueda, setBusqueda] = useState('');
+  const [busqueda, setBusqueda]         = useState('');
   const [estadoFiltro, setEstadoFiltro] = useState('Todos');
 
-  // ---- FUNCIÓN AUXILIAR PARA NORMALIZAR Y COMPARAR LAS FECHAS ----
-  // Convierte "AAAA-MM-DD" (de fechaAuditoria) y "D/M/AAAA" o "DD/MM/AAAA" (de la reserva) a un timestamp comparable
-  const fechasCoinciden = (fechaReservaRaw, fechaAuditoriaRaw) => {
-    if (!fechaReservaRaw || !fechaAuditoriaRaw) return false;
-    
-    try {
-      // 1. Normalizar fecha de la reserva (ej: "10/5/2026" -> ["10", "5", "2026"])
-      const partesReserva = fechaReservaRaw.split('/');
-      if (partesReserva.length !== 3) return false;
-      const diaR = parseInt(partesReserva[0], 10);
-      const mesR = parseInt(partesReserva[1], 10) - 1; // Base 0 para meses en JS
-      const añoR = parseInt(partesReserva[2], 10);
-      const timestampReserva = new Date(añoR, mesR, diaR).setHours(0,0,0,0);
+  // Modales
+  const [modalVer, setModalVer]           = useState(null);
+  const [modalEditar, setModalEditar]     = useState(null);
+  const [modalEliminar, setModalEliminar] = useState(null);
+  const [formEditar, setFormEditar]       = useState({});
 
-      // 2. Normalizar fecha de auditoría (ej: "2026-06-21" -> ["2026", "06", "21"])
-      const partesAuditoria = fechaAuditoriaRaw.split('-');
-      if (partesAuditoria.length !== 3) return false;
-      const añoA = parseInt(partesAuditoria[0], 10);
-      const mesA = parseInt(partesAuditoria[1], 10) - 1;
-      const diaA = parseInt(partesAuditoria[2], 10);
-      const timestampAuditoria = new Date(añoA, mesA, diaA).setHours(0,0,0,0);
-
-      return timestampReserva === timestampAuditoria;
-    } catch (e) {
-      return false;
+  // ─────────────────────────────────────────────────────────────────────────────
+  // fechasCoinciden: compara dos fechas independientemente de su formato.
+  // Soporta:
+  //   - "AAAA-MM-DD"  (ISO — formato del mockData y del DateSelector)
+  //   - "D/M/AAAA" o "DD/MM/AAAA"  (formato legado con barras)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const parsearFecha = (str) => {
+    if (!str) return null;
+    if (str.includes('-')) {
+      // Formato ISO: "2026-06-20"
+      const [y, m, d] = str.split('-').map(Number);
+      return new Date(y, m - 1, d).setHours(0,0,0,0);
     }
+    if (str.includes('/')) {
+      // Formato legado: "20/6/2026" o "20/06/2026"
+      const [d, m, y] = str.split('/').map(Number);
+      return new Date(y, m - 1, d).setHours(0,0,0,0);
+    }
+    return null;
   };
 
-  // ---- CÁLCULO DE MÉTRICAS OPERATIVAS (Basadas en la fecha seleccionada en el DateSelector) ----
-  const reservasDelDiaEscogido = reservations.filter(res => 
-    fechasCoinciden(res.fecha, fechaAuditoria)
-  );
+  const fechasCoinciden = (fechaReserva, fechaAud) => {
+    const ts1 = parsearFecha(fechaReserva);
+    const ts2 = parsearFecha(fechaAud);
+    return ts1 !== null && ts2 !== null && ts1 === ts2;
+  };
 
-  const cantConfirmadas = reservasDelDiaEscogido.filter(res => res.estado === 'Confirmada').length;
-  const cantCanceladas = reservasDelDiaEscogido.filter(res => res.estado === 'Cancelada').length;
-  const cantCompletadas = reservasDelDiaEscogido.filter(res => res.estado === 'Completada').length;
+  // ── Métricas del día seleccionado ──
+  const reservasDelDia  = reservations.filter(r => fechasCoinciden(r.fecha, fechaAuditoria));
+  const cantConfirmadas = reservasDelDia.filter(r => r.estado === 'Confirmada').length;
+  const cantCanceladas  = reservasDelDia.filter(r => r.estado === 'Cancelada').length;
+  const cantCompletadas = reservasDelDia.filter(r => r.estado === 'Completada').length;
 
-  // ---- FILTRADO DEL LISTADO HISTÓRICO GENERAL DE LA TABLA ----
+  // ── Filtrado de tabla ──
   const reservasFiltradasParaTabla = reservations.filter(res => {
     const texto = busqueda.toLowerCase();
-    const matchesTexto = 
+    const matchesTexto =
       res.cliente?.toLowerCase().includes(texto) ||
       res.sala?.toLowerCase().includes(texto) ||
       res.id?.toLowerCase().includes(texto) ||
       res.telefono?.toLowerCase().includes(texto);
-
-    const matchesEstado = estadoFiltro === 'Todos' || res.estado === estadoFiltro;
-
-    return matchesTexto && matchesEstado;
+    return matchesTexto && (estadoFiltro === 'Todos' || res.estado === estadoFiltro);
   });
+
+  // ── Handlers ──
+  const abrirEditar = (r) => { setFormEditar({ ...r }); setModalEditar(r); };
+
+  const guardarEdicion = () => {
+    setReservations(prev => prev.map(r => r.id === formEditar.id ? { ...formEditar } : r));
+    setModalEditar(null);
+    triggerToast('Reserva actualizada correctamente');
+  };
+
+  const confirmarEliminar = () => {
+    setReservations(prev => prev.filter(r => r.id !== modalEliminar.id));
+    setModalEliminar(null);
+    triggerToast('Reserva eliminada');
+  };
+
+  // ── Helpers de badge ──
+  const estadoBadgeClass = (estado) => `badge-status ${estado?.toLowerCase() || 'confirmada'}`;
+  const pagoBadgeClass   = (pago)   => `badge-pago ${pago?.toLowerCase() === 'pagado' ? 'pagado' : 'pendiente'}`;
+
+  // ── Formato legible de fecha ISO para los modales ──
+  const formatFecha = (str) => {
+    if (!str) return '';
+    if (str.includes('-')) {
+      const [y, m, d] = str.split('-');
+      return `${d}/${m}/${y}`;
+    }
+    return str;
+  };
 
   return (
     <div className="reservas-view-container">
-      
-      {/* HEADER PRINCIPAL */}
+
+      {/* ── HEADER ── */}
       <header className="reservas-header">
         <div className="header-left">
           <h1>Gestión de Reservas</h1>
@@ -75,57 +104,39 @@ export default function Reservas() {
         </div>
       </header>
 
-      {/* METRICAS SUPERIORES DE RECUENTO DEL DÍA SELECCIONADO */}
-      <div className="reservas-metrics-grid" >
-        <MetricCard 
-          label="Confirmada" 
-          value={cantConfirmadas} 
-          variant="green" 
-        />
-        <MetricCard 
-          label="Cancelada" 
-          value={cantCanceladas} 
-          variant="orange" 
-        />
-        <MetricCard 
-          label="Completada" 
-          value={cantCompletadas} 
-          variant="blue" 
-        />
+      {/* ── MÉTRICAS ── */}
+      <div className="reservas-metrics-grid">
+        <MetricCard label="Confirmada" value={cantConfirmadas} variant="green" />
+        <MetricCard label="Cancelada"  value={cantCanceladas}  variant="orange" />
+        <MetricCard label="Completada" value={cantCompletadas} variant="blue" />
       </div>
 
-      {/* BARRA DE FILTROS Y BUSCADOR DEL LISTADO GENERAL */}
+      {/* ── BARRA DE HERRAMIENTAS ── */}
       <div className="table-tools-bar">
         <div className="search-input-wrapper">
           <i className="fa-solid fa-magnifying-glass icon-search"></i>
-          <input 
-            type="text" 
-            placeholder="Buscar por cliente, sala o ID de reserva..." 
+          <input
+            type="text"
+            placeholder="Buscar por cliente, sala o ID de reserva..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             className="input-search"
           />
         </div>
-
         <div className="tools-right">
-          <select 
-            value={estadoFiltro} 
-            onChange={(e) => setEstadoFiltro(e.target.value)}
-            className="select-filter"
-          >
+          <select value={estadoFiltro} onChange={(e) => setEstadoFiltro(e.target.value)} className="select-filter">
             <option value="Todos">Todos los estados</option>
             <option value="Confirmada">Confirmada</option>
             <option value="Completada">Completada</option>
             <option value="Cancelada">Cancelada</option>
           </select>
-
           <button className="btn-exportar">
             <i className="fa-solid fa-download"></i> Exportar
           </button>
         </div>
       </div>
 
-      {/* TABLA PRINCIPAL DE DATOS (Muestra registros históricos generales o filtrados) */}
+      {/* ── TABLA ── */}
       <div className="table-container">
         <div className="table-header-title">
           Listado de Reservas <span className="table-count">({reservasFiltradasParaTabla.length})</span>
@@ -163,7 +174,7 @@ export default function Reservas() {
                   </td>
                   <td>
                     <div className="date-cell">
-                      <strong className="date-day">{res.fecha}</strong>
+                      <strong className="date-day">{formatFecha(res.fecha)}</strong>
                       <span className="date-hours">{res.hora}</span>
                     </div>
                   </td>
@@ -173,25 +184,32 @@ export default function Reservas() {
                     </span>
                   </td>
                   <td>
-                    <span className={`badge-status ${res.estado?.toLowerCase() || 'confirmada'}`}>
+                    <span className={estadoBadgeClass(res.estado)}>
                       <span className="status-indicator-dot"></span> {res.estado}
                     </span>
                   </td>
                   <td>
-                    <span className={`badge-pago ${res.pago?.toLowerCase() === 'pagado' ? 'pagado' : 'pendiente'}`}>
+                    <span className={pagoBadgeClass(res.pago)}>
                       <i className="fa-solid fa-wallet icon-wallet"></i> {res.pago}
                     </span>
                   </td>
                   <td>
-                    <span className="channel-tag">
-                      {res.canal}
-                    </span>
+                    <span className="channel-tag">{res.canal}</span>
                   </td>
                   <td className="text-center">
                     <div className="actions-cell">
-                      <button className="btn-action view" title="Ver detalle"><i className="fa-solid fa-eye"></i></button>
-                      <button className="btn-action edit" title="Editar"><i className="fa-solid fa-pen"></i></button>
-                      <button className="btn-action delete" title="Eliminar"><i className="fa-solid fa-trash"></i></button>
+                      <button className="btn-action view"   title="Ver detalle" onClick={() => setModalVer(res)}>
+                        <i className="fa-solid fa-eye"></i>
+                        <FontAwesomeIcon icon={faEye} />
+                      </button>
+                      <button className="btn-action edit"   title="Editar"      onClick={() => abrirEditar(res)}>
+                        <i className="fa-solid fa-pen"></i>
+                        <FontAwesomeIcon icon={faPen} />
+                      </button>
+                      <button className="btn-action delete" title="Eliminar"    onClick={() => setModalEliminar(res)}>
+                        <i className="fa-solid fa-trash"></i>
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -205,17 +223,184 @@ export default function Reservas() {
         </table>
       </div>
 
-      {/* SECCIÓN INFERIOR: MATRIZ PRODUCTIVA (Ubicada debajo de la tabla por solicitud explícita) */}
+      {/* ── MATRIZ OPERATIVA ── */}
       <section className="matriz-operativa-section">
         <div className="matriz-header-row">
           <h2>Matriz Operativa del Día</h2>
           <DateSelector />
         </div>
-        {/* Renderizado de la grilla de celdas horarias */}
         <DispoGrid fechasCoinciden={fechasCoinciden} />
       </section>
+
+      {/* ════════ MODAL VER ════════ */}
+      {modalVer && (
+        <div className="rv-modal-overlay" onClick={() => setModalVer(null)}>
+          <div className="rv-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="rv-modal-header">
+              <h2>Detalle de Reserva</h2>
+              <button className="rv-modal-close" onClick={() => setModalVer(null)}>✕</button>
+            </div>
+            <div className="rv-modal-body">
+              <div className="rv-info-grid">
+                <div className="rv-info-block rv-info-block--full">
+                  <span className="rv-info-label">Cliente</span>
+                  <span className="rv-info-value rv-info-value--lg">{modalVer.cliente}</span>
+                  <span className="rv-info-sub">{modalVer.telefono || '+54 11 0000-0000'}</span>
+                </div>
+                <div className="rv-info-block">
+                  <span className="rv-info-label">ID Reserva</span>
+                  <span className="rv-info-value rv-info-value--mono">{modalVer.id}</span>
+                </div>
+                <div className="rv-info-block">
+                  <span className="rv-info-label">Sala</span>
+                  <span className="rv-info-value">{modalVer.sala}</span>
+                </div>
+                <div className="rv-info-block">
+                  <span className="rv-info-label">Fecha</span>
+                  <span className="rv-info-value">{formatFecha(modalVer.fecha)}</span>
+                </div>
+                <div className="rv-info-block">
+                  <span className="rv-info-label">Hora</span>
+                  <span className="rv-info-value">{modalVer.hora}</span>
+                </div>
+                <div className="rv-info-block">
+                  <span className="rv-info-label">Personas</span>
+                  <span className="rv-info-value">{modalVer.personas}</span>
+                </div>
+                <div className="rv-info-block">
+                  <span className="rv-info-label">Canal</span>
+                  <span className="rv-info-value">{modalVer.canal}</span>
+                </div>
+                <div className="rv-info-block">
+                  <span className="rv-info-label">Estado</span>
+                  <span className={estadoBadgeClass(modalVer.estado)}>
+                    <span className="status-indicator-dot"></span> {modalVer.estado}
+                  </span>
+                </div>
+                <div className="rv-info-block">
+                  <span className="rv-info-label">Pago</span>
+                  <span className={pagoBadgeClass(modalVer.pago)}>
+                    <i className="fa-solid fa-wallet icon-wallet"></i> {modalVer.pago}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="rv-modal-footer">
+              <button className="rv-btn-secondary" onClick={() => setModalVer(null)}>Cerrar</button>
+              <button className="rv-btn-primary" onClick={() => { setModalVer(null); abrirEditar(modalVer); }}>
+                <i className="fa-solid fa-pen"></i> Editar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ════════ MODAL EDITAR ════════ */}
+      {modalEditar && (
+        <div className="rv-modal-overlay" onClick={() => setModalEditar(null)}>
+          <div className="rv-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="rv-modal-header">
+              <h2>Editar Reserva <span className="rv-modal-id">{modalEditar.id}</span></h2>
+              <button className="rv-modal-close" onClick={() => setModalEditar(null)}>✕</button>
+            </div>
+            <div className="rv-modal-body">
+              <div className="rv-form-grid">
+                <div className="rv-form-field rv-form-field--full">
+                  <label className="rv-form-label">Cliente</label>
+                  <input className="rv-form-input" value={formEditar.cliente}
+                    onChange={(e) => setFormEditar({ ...formEditar, cliente: e.target.value })} />
+                </div>
+                <div className="rv-form-field">
+                  <label className="rv-form-label">Teléfono</label>
+                  <input className="rv-form-input" value={formEditar.telefono || ''}
+                    onChange={(e) => setFormEditar({ ...formEditar, telefono: e.target.value })} />
+                </div>
+                <div className="rv-form-field">
+                  <label className="rv-form-label">Sala</label>
+                  <input className="rv-form-input" value={formEditar.sala}
+                    onChange={(e) => setFormEditar({ ...formEditar, sala: e.target.value })} />
+                </div>
+                <div className="rv-form-field">
+                  <label className="rv-form-label">Fecha</label>
+                  {/* input type=date trabaja siempre en formato ISO AAAA-MM-DD */}
+                  <input type="date" className="rv-form-input" value={formEditar.fecha}
+                    onChange={(e) => setFormEditar({ ...formEditar, fecha: e.target.value })} />
+                </div>
+                <div className="rv-form-field">
+                  <label className="rv-form-label">Hora</label>
+                  <input type="time" className="rv-form-input" value={formEditar.hora}
+                    onChange={(e) => setFormEditar({ ...formEditar, hora: e.target.value })} />
+                </div>
+                <div className="rv-form-field">
+                  <label className="rv-form-label">Personas</label>
+                  <input type="number" className="rv-form-input" value={formEditar.personas}
+                    onChange={(e) => setFormEditar({ ...formEditar, personas: Number(e.target.value) })} />
+                </div>
+                <div className="rv-form-field">
+                  <label className="rv-form-label">Canal</label>
+                  <select className="rv-form-input" value={formEditar.canal}
+                    onChange={(e) => setFormEditar({ ...formEditar, canal: e.target.value })}>
+                    <option>Web</option>
+                    <option>WhatsApp</option>
+                    <option>Telefónico</option>
+                    <option>Presencial</option>
+                  </select>
+                </div>
+                <div className="rv-form-field">
+                  <label className="rv-form-label">Estado</label>
+                  <select className="rv-form-input" value={formEditar.estado}
+                    onChange={(e) => setFormEditar({ ...formEditar, estado: e.target.value })}>
+                    <option>Confirmada</option>
+                    <option>Completada</option>
+                    <option>Cancelada</option>
+                  </select>
+                </div>
+                <div className="rv-form-field">
+                  <label className="rv-form-label">Pago</label>
+                  <select className="rv-form-input" value={formEditar.pago}
+                    onChange={(e) => setFormEditar({ ...formEditar, pago: e.target.value })}>
+                    <option>Pagado</option>
+                    <option>No Pagado</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="rv-modal-footer">
+              <button className="rv-btn-secondary" onClick={() => setModalEditar(null)}>Cancelar</button>
+              <button className="rv-btn-primary" onClick={guardarEdicion}>Guardar cambios</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ════════ MODAL ELIMINAR ════════ */}
+      {modalEliminar && (
+        <div className="rv-modal-overlay" onClick={() => setModalEliminar(null)}>
+          <div className="rv-modal rv-modal--sm" onClick={(e) => e.stopPropagation()}>
+            <div className="rv-modal-header rv-modal-header--danger">
+              <h2>Eliminar Reserva</h2>
+              <button className="rv-modal-close" onClick={() => setModalEliminar(null)}>✕</button>
+            </div>
+            <div className="rv-modal-body">
+              <div className="rv-eliminar-preview">
+                <div className="rv-eliminar-icon">🗑</div>
+                <p className="rv-eliminar-text">
+                  Estás por eliminar la reserva <strong>{modalEliminar.id}</strong> de{' '}
+                  <strong>{modalEliminar.cliente}</strong> para el {formatFecha(modalEliminar.fecha)} a las {modalEliminar.hora}.
+                </p>
+                <p className="rv-eliminar-warn">Esta acción no se puede deshacer.</p>
+              </div>
+            </div>
+            <div className="rv-modal-footer">
+              <button className="rv-btn-secondary" onClick={() => setModalEliminar(null)}>Cancelar</button>
+              <button className="rv-btn-danger" onClick={confirmarEliminar}>
+                <i className="fa-solid fa-trash"></i> Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
 }
-
