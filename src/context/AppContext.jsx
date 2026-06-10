@@ -10,6 +10,8 @@ import {
 
 export const AppContext = createContext();
 
+const FACTURACION_STATE_VERSION = 'facturacion-separada-de-pago-v1';
+
 const normalizarReservas = (reservas = []) => {
   const porId = new Map();
 
@@ -19,6 +21,24 @@ const normalizarReservas = (reservas = []) => {
   });
 
   return Array.from(porId.values());
+};
+
+const limpiarEstadoFacturacion = (reservas = []) => reservas.map((reserva) => {
+  const { facturado, fechaFacturacion, ...datosReserva } = reserva;
+  return datosReserva;
+});
+
+const cargarReservasPersistidas = () => {
+  const saved = localStorage.getItem('er_reservations');
+  const reservasBase = normalizarReservas(saved ? JSON.parse(saved) : initialReservations);
+  const versionFacturacion = localStorage.getItem('er_facturacion_state_version');
+
+  if (saved && versionFacturacion !== FACTURACION_STATE_VERSION) {
+    localStorage.setItem('er_facturacion_state_version', FACTURACION_STATE_VERSION);
+    return limpiarEstadoFacturacion(reservasBase);
+  }
+
+  return reservasBase;
 };
 
 // Devuelve la fecha de hoy en formato "AAAA-MM-DD"
@@ -36,8 +56,7 @@ export const AppProvider = ({ children }) => {
   });
 
   const [reservations, setReservations] = useState(() => {
-    const saved = localStorage.getItem('er_reservations');
-    return normalizarReservas(saved ? JSON.parse(saved) : initialReservations);
+    return cargarReservasPersistidas();
   });
 
   const [payments, setPayments] = useState(() => {
