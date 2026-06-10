@@ -130,9 +130,36 @@
   font-weight: 500;
 }
 
+.reservas-table-scroll {
+  overflow-x: auto;
+  width: 100%;
+}
+
 .reservas-table {
   width: 100%;
+  min-width: 1280px;
   border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.reservas-table .col-id { width: 120px; }
+.reservas-table .col-cliente { width: 210px; }
+.reservas-table .col-sala { width: 240px; }
+.reservas-table .col-fecha { width: 170px; }
+.reservas-table .col-personas { width: 130px; }
+.reservas-table .col-estado { width: 190px; }
+.reservas-table .col-pago { width: 160px; }
+.reservas-table .col-canal { width: 120px; }
+.reservas-table .col-acciones { width: 150px; }
+
+.reservas-table th:first-child,
+.reservas-table td:first-child {
+  padding-left: 28px;
+}
+
+.reservas-table th:last-child,
+.reservas-table td:last-child {
+  padding-right: 28px;
 }
 
 .reservas-table th {
@@ -234,16 +261,24 @@
   display: flex;
   gap: 6px;
   justify-content: center;
+  min-width: 114px;
+  white-space: nowrap;
 }
 
 .btn-action {
-  background: none;
+  width: 34px;
+  height: 34px;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
-  padding: 8px;
+  padding: 0;
   border-radius: 6px;
   cursor: pointer;
   color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s;
+  flex: 0 0 34px;
 }
 .btn-action.view:hover { color: #0f172a; background: #f1f5f9; }
 .btn-action.edit:hover { color: #2563eb; background: #eff6ff; }

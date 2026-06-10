@@ -141,83 +141,96 @@ export default function Reservas() {
         <div className="table-header-title">
           Listado de Reservas <span className="table-count">({reservasFiltradasParaTabla.length})</span>
         </div>
-        <table className="reservas-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Sala</th>
-              <th>Fecha y Hora</th>
-              <th>Personas</th>
-              <th>Estado</th>
-              <th>Pago</th>
-              <th>Canal</th>
-              <th className="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reservasFiltradasParaTabla.length > 0 ? (
-              reservasFiltradasParaTabla.map((res) => (
-                <tr key={res.id}>
-                  <td className="txt-id">{res.id}</td>
-                  <td>
-                    <div className="customer-cell">
-                      <strong className="customer-fullname">{res.cliente}</strong>
-                      <span className="customer-phone">{res.telefono || '+54 11 0000-0000'}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="sala-cell">
-                      <strong className="sala-name">{res.sala}</strong>
-                      <span className="sala-category">Clasificación</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="date-cell">
-                      <strong className="date-day">{formatFecha(res.fecha)}</strong>
-                      <span className="date-hours">{res.hora}</span>
-                    </div>
-                  </td>
-                  <td className="text-center">
-                    <span className="pax-tag">
-                      <i className="fa-solid fa-user-group icon-pax"></i> {res.personas}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={estadoBadgeClass(res.estado)}>
-                      <span className="status-indicator-dot"></span> {res.estado}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={pagoBadgeClass(res.pago)}>
-                      <i className="fa-solid fa-wallet icon-wallet"></i> {res.pago}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="channel-tag">{res.canal}</span>
-                  </td>
-                  <td className="text-center">
-                    <div className="actions-cell">
-                      <button className="btn-action view"   title="Ver detalle" onClick={() => setModalVer(res)}>
-                        <FontAwesomeIcon icon={faEye} />
-                      </button>
-                      <button className="btn-action edit"   title="Editar"      onClick={() => abrirEditar(res)}>
-                        <FontAwesomeIcon icon={faPen} />
-                      </button>
-                      <button className="btn-action delete" title="Eliminar"    onClick={() => setModalEliminar(res)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
+        <div className="reservas-table-scroll">
+          <table className="reservas-table">
+            <colgroup>
+              <col className="col-id" />
+              <col className="col-cliente" />
+              <col className="col-sala" />
+              <col className="col-fecha" />
+              <col className="col-personas" />
+              <col className="col-estado" />
+              <col className="col-pago" />
+              <col className="col-canal" />
+              <col className="col-acciones" />
+            </colgroup>
+            <thead>
               <tr>
-                <td colSpan="9" className="no-data-msg">No se encontraron registros que coincidan con la búsqueda.</td>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Sala</th>
+                <th>Fecha y Hora</th>
+                <th>Personas</th>
+                <th>Estado</th>
+                <th>Pago</th>
+                <th>Canal</th>
+                <th className="text-center">Acciones</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {reservasFiltradasParaTabla.length > 0 ? (
+                reservasFiltradasParaTabla.map((res) => (
+                  <tr key={res.id}>
+                    <td className="txt-id">{res.id}</td>
+                    <td>
+                      <div className="customer-cell">
+                        <strong className="customer-fullname">{res.cliente}</strong>
+                        <span className="customer-phone">{res.telefono || '+54 11 0000-0000'}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="sala-cell">
+                        <strong className="sala-name">{res.sala}</strong>
+                        <span className="sala-category">Clasificación</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="date-cell">
+                        <strong className="date-day">{formatFecha(res.fecha)}</strong>
+                        <span className="date-hours">{res.hora}</span>
+                      </div>
+                    </td>
+                    <td className="text-center">
+                      <span className="pax-tag">
+                        <i className="fa-solid fa-user-group icon-pax"></i> {res.personas}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={estadoBadgeClass(res.estado)}>
+                        <span className="status-indicator-dot"></span> {res.estado}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={pagoBadgeClass(res.pago)}>
+                        <i className="fa-solid fa-wallet icon-wallet"></i> {res.pago}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="channel-tag">{res.canal}</span>
+                    </td>
+                    <td className="text-center">
+                      <div className="actions-cell">
+                        <button className="btn-action view" title="Ver detalle" onClick={() => setModalVer(res)}>
+                          <FontAwesomeIcon icon={faEye} />
+                        </button>
+                        <button className="btn-action edit" title="Editar" onClick={() => abrirEditar(res)}>
+                          <FontAwesomeIcon icon={faPen} />
+                        </button>
+                        <button className="btn-action delete" title="Eliminar" onClick={() => setModalEliminar(res)}>
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="9" className="no-data-msg">No se encontraron registros que coincidan con la búsqueda.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* ── MATRIZ OPERATIVA ── */}
