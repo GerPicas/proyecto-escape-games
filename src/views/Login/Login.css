@@ -10,13 +10,17 @@
   top: 0;
   left: 0;
   font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(249, 115, 22, 0.34), transparent 30%),
+    linear-gradient(135deg, #2b160d 0%, #7c2d12 48%, #111827 100%);
 }
 
 .login-card {
-  background-color: #1e293b; /* Tarjeta gris azulada oscura */
+  background-color: rgba(30, 41, 59, 0.94); /* Tarjeta gris azulada oscura */
   padding: 40px;
   border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(248, 250, 252, 0.08);
+  box-shadow: 0 22px 55px -18px rgba(0, 0, 0, 0.62), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 400px;
   text-align: center;

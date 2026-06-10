@@ -1,5 +1,5 @@
 // src/context/AppContext.jsx
-import React, { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import { 
   initialUsers, 
   initialReservations, 
@@ -9,6 +9,17 @@ import {
 } from '../data/mockData';
 
 export const AppContext = createContext();
+
+const normalizarReservas = (reservas = []) => {
+  const porId = new Map();
+
+  reservas.forEach((reserva, index) => {
+    const id = reserva?.id || `REV-SIN-ID-${index + 1}`;
+    porId.set(id, { ...reserva, id });
+  });
+
+  return Array.from(porId.values());
+};
 
 // Devuelve la fecha de hoy en formato "AAAA-MM-DD"
 const isoHoy = () => {
@@ -26,7 +37,7 @@ export const AppProvider = ({ children }) => {
 
   const [reservations, setReservations] = useState(() => {
     const saved = localStorage.getItem('er_reservations');
-    return saved ? JSON.parse(saved) : initialReservations;
+    return normalizarReservas(saved ? JSON.parse(saved) : initialReservations);
   });
 
   const [payments, setPayments] = useState(() => {

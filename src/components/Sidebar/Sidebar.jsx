@@ -1,6 +1,15 @@
 // src/components/sidebar/Sidebar.jsx
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '../../context/AppContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCalendarDays,
+  faChartColumn,
+  faCreditCard,
+  faPlug,
+  faReceipt,
+  faUsers
+} from '@fortawesome/free-solid-svg-icons';
 import './Sidebar.css';
 
 export default function Sidebar() {
@@ -22,21 +31,24 @@ export default function Sidebar() {
           onClick={() => setCurrentView('INICIO')}
           className={`sidebar-link ${currentView === 'INICIO' ? 'active' : ''}`}
         >
-          📊 Inicio
+          <FontAwesomeIcon className="sidebar-link-icon" icon={faChartColumn} />
+          <span>Inicio</span>
         </button>
 
         <button 
           onClick={() => setCurrentView('RESERVAS')}
           className={`sidebar-link ${currentView === 'RESERVAS' ? 'active' : ''}`}
         >
-          📅 Reservas
+          <FontAwesomeIcon className="sidebar-link-icon" icon={faCalendarDays} />
+          <span>Reservas</span>
         </button>
 
         <button 
           onClick={() => setCurrentView('PAGOS')}
           className={`sidebar-link ${currentView === 'PAGOS' ? 'active' : ''}`}
         >
-          💳 Pagos
+          <FontAwesomeIcon className="sidebar-link-icon" icon={faCreditCard} />
+          <span>Pagos</span>
         </button>
 
         {/* Nueva sección de Facturación */}
@@ -44,7 +56,8 @@ export default function Sidebar() {
           onClick={() => setCurrentView('FACTURACION')}
           className={`sidebar-link ${currentView === 'FACTURACION' ? 'active' : ''}`}
         >
-          🧾 Facturación
+          <FontAwesomeIcon className="sidebar-link-icon" icon={faReceipt} />
+          <span>Facturación</span>
         </button>
 
         {/* Nueva sección de Integración */}
@@ -52,7 +65,8 @@ export default function Sidebar() {
           onClick={() => setCurrentView('INTEGRACION')}
           className={`sidebar-link ${currentView === 'INTEGRACION' ? 'active' : ''}`}
         >
-          🔌 Integración
+          <FontAwesomeIcon className="sidebar-link-icon" icon={faPlug} />
+          <span>Integración</span>
         </button>
 
         {/* CONTROL DE ROL: Exclusivo del Analista */}
@@ -61,7 +75,8 @@ export default function Sidebar() {
             onClick={() => setCurrentView('USUARIOS')}
             className={`sidebar-link ${currentView === 'USUARIOS' ? 'active' : ''}`}
           >
-            👥 Usuarios
+            <FontAwesomeIcon className="sidebar-link-icon" icon={faUsers} />
+            <span>Usuarios</span>
           </button>
         )}
       </nav>

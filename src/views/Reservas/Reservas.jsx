@@ -1,5 +1,5 @@
 // src/views/Reservas/Reservas.jsx
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
 import DateSelector from './components/DateSelector/DateSelector';
 import DispoGrid from './components/DispoGrid/DispoGrid';
@@ -199,15 +199,12 @@ export default function Reservas() {
                   <td className="text-center">
                     <div className="actions-cell">
                       <button className="btn-action view"   title="Ver detalle" onClick={() => setModalVer(res)}>
-                        <i className="fa-solid fa-eye"></i>
                         <FontAwesomeIcon icon={faEye} />
                       </button>
                       <button className="btn-action edit"   title="Editar"      onClick={() => abrirEditar(res)}>
-                        <i className="fa-solid fa-pen"></i>
                         <FontAwesomeIcon icon={faPen} />
                       </button>
                       <button className="btn-action delete" title="Eliminar"    onClick={() => setModalEliminar(res)}>
-                        <i className="fa-solid fa-trash"></i>
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </div>
@@ -383,7 +380,7 @@ export default function Reservas() {
             </div>
             <div className="rv-modal-body">
               <div className="rv-eliminar-preview">
-                <div className="rv-eliminar-icon">🗑</div>
+                <FontAwesomeIcon className="rv-eliminar-icon" icon={faTrash} />
                 <p className="rv-eliminar-text">
                   Estás por eliminar la reserva <strong>{modalEliminar.id}</strong> de{' '}
                   <strong>{modalEliminar.cliente}</strong> para el {formatFecha(modalEliminar.fecha)} a las {modalEliminar.hora}.

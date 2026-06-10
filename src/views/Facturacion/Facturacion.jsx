@@ -1,32 +1,60 @@
-import React, { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '../../context/AppContext';
 import MetricCard from '../../components/MetricCard/MetricCard';
 import './Facturacion.css';
 
+const MONTO_TOTAL_DEFAULT = 12000;
+const MONTO_SENA_DEFAULT = 4000;
+
+const montoTotalReserva = (reserva) => Number(reserva.montoTotal) || MONTO_TOTAL_DEFAULT;
+const montoSenaReserva = (reserva) => Number(reserva.montoSena) || MONTO_SENA_DEFAULT;
+const estaCancelada = (reserva) => reserva.estado?.toLowerCase() === 'cancelada';
+const estaFacturada = (reserva) => reserva.facturado === true || reserva.pago?.toLowerCase() === 'pagado';
+
 export default function Facturacion() {
-  const { reservations = [] } = useContext(AppContext);
-  const [filtroPago, setFiltroPago] = useState('Todos');
-  const [facturadosIds, setFacturadosIds] = useState([]);
+  const { reservations = [], payments = [], setReservations, triggerToast } = useContext(AppContext);
+  const filtroPago = 'Todos';
 
   // ---- CÁLCULO DE MÉTRICAS FINANCIERAS EN TIEMPO REAL ----
-  // Asumimos valores por defecto si no vienen cargados en el JSON original
-  const ingresosTotales = reservations.reduce((acc, res) => acc + (Number(res.montoTotal) || 12000), 0);
-  
-  const totalCobrado = reservations.reduce((acc, res) => {
-    const sena = Number(res.montoSena) || 4000;
-    const esSaldado = res.pago?.toLowerCase() === 'pagado';
-    const total = Number(res.montoTotal) || 12000;
-    return acc + (esSaldado ? total : sena);
+  const facturadoEsteMes = reservations.reduce((acc, res) => {
+    if (estaCancelada(res) || !estaFacturada(res)) return acc;
+    return acc + montoTotalReserva(res);
   }, 0);
 
-  const porCobrar = ingresosTotales - totalCobrado;
+  const pendienteFacturar = reservations.reduce((acc, res) => {
+    if (estaCancelada(res) || estaFacturada(res)) return acc;
+    return acc + montoTotalReserva(res);
+  }, 0);
+
+  const noAplica = reservations.reduce((acc, res) => {
+    if (!estaCancelada(res)) return acc;
+    return acc + montoTotalReserva(res);
+  }, 0);
+
+  const efectivoNoFacturable = payments.reduce((acc, pago) => {
+    const esIngresoEfectivo = pago.tipo === 'Ingreso' && pago.metodo === 'Efectivo';
+    const estaPagado = pago.estado === 'Pagado';
+    return esIngresoEfectivo && estaPagado ? acc + Number(pago.monto || 0) : acc;
+  }, 0);
 
   // ---- FILTRADO PARA LA TABLA DE CONTROL ----
   const registrosFiltrados = reservations.filter(res => {
     if (filtroPago === 'Todos') return true;
-    if (filtroPago === 'Pagado') return res.pago?.toLowerCase() === 'pagado';
-    return res.pago?.toLowerCase() === 'pendiente';
+    if (filtroPago === 'Pagado') return estaFacturada(res);
+    return !estaFacturada(res) && !estaCancelada(res);
   });
+
+  const marcarFacturado = (reservaId) => {
+    const hoy = new Date().toISOString().slice(0, 10);
+
+    setReservations((prev) => prev.map((res) => (
+      res.id === reservaId
+        ? { ...res, facturado: true, fechaFacturacion: hoy }
+        : res
+    )));
+
+    triggerToast?.('Reserva marcada como facturada');
+  };
 
   return (
     <div className="facturacion-view-container">
@@ -45,19 +73,19 @@ export default function Facturacion() {
       <div className="financial-metrics-grid">
         <MetricCard 
           label="FACTURADO ESTE MES" 
-          value={`$${totalCobrado.toLocaleString('es-AR')}`} 
+          value={`$${facturadoEsteMes.toLocaleString('es-AR')}`} 
         />
         <MetricCard 
           label="PENDIENTE FACTURAR" 
-          value={`$${porCobrar.toLocaleString('es-AR')}`} 
+          value={`$${pendienteFacturar.toLocaleString('es-AR')}`} 
         />
         <MetricCard 
           label="NO APLICA" 
-          value="$12.000" 
+          value={`$${noAplica.toLocaleString('es-AR')}`} 
         />
         <MetricCard 
           label="EFECTIVO (NO FACTURABLE)" 
-          value="$21.300" 
+          value={`$${efectivoNoFacturable.toLocaleString('es-AR')}`} 
         />
       </div>
 
@@ -77,13 +105,19 @@ export default function Facturacion() {
           <tbody>
             {registrosFiltrados.length > 0 ? (
               registrosFiltrados.map((res) => {
-                const total = Number(res.montoTotal) || 12000;
-                const sena = Number(res.montoSena) || 4000;
-              
-                // EVALUACIÓN: Está saldado si viene de la data (pagado/facturado) O si se clickeó recién (está en el estado local)
-                const esSaldado = res.pago?.toLowerCase() === 'pagado' || res.facturado || facturadosIds.includes(res.id);
-                const montoAMostrar = esSaldado ? total : sena;
-                const conceptoDesc = esSaldado ? `Total reserva ${res.id || ''}` : `Seña reserva ${res.id || ''}`;
+                const total = montoTotalReserva(res);
+                const sena = montoSenaReserva(res);
+                const esNoAplica = estaCancelada(res);
+                const esSaldado = !esNoAplica && estaFacturada(res);
+                const estaPendiente = !esNoAplica && !esSaldado;
+                const montoAMostrar = esSaldado || esNoAplica ? total : sena;
+                const conceptoDesc = esNoAplica
+                  ? `Reserva cancelada ${res.id || ''}`
+                  : esSaldado
+                    ? `Total reserva ${res.id || ''}`
+                    : `Seña reserva ${res.id || ''}`;
+                const estadoTexto = esNoAplica ? 'No aplica' : esSaldado ? 'Facturado' : 'Pendiente de facturar';
+                const estadoClase = esNoAplica ? 'no-aplica' : esSaldado ? 'facturado' : 'pendiente';
               
                 const metodoClase = res.canal?.toLowerCase().includes('web') ? 'web' : 'sucursal';
                 const metodoTexto = res.medioPago ? `${res.canal || 'Web'} · ${res.medioPago}` : `${res.canal || 'Web'} · Facturante`;
@@ -98,23 +132,24 @@ export default function Facturacion() {
                     </td>
                     <td>
                       {/* Cambia dinámicamente el texto y la clase CSS al clickear */}
-                      <span className={`badge-estado ${esSaldado ? 'facturado' : 'pendiente'}`}>
-                        {esSaldado ? 'Facturado' : 'Pendiente de facturar'}
+                      <span className={`badge-estado ${estadoClase}`}>
+                        {estadoTexto}
                       </span>
                     </td>
                     <td className="text-right">
-                      {/* Al hacer click se mete el ID en el estado, mutando la fila al instante */}
-                      {!esSaldado ? (
+                      {estaPendiente ? (
                         <button 
                           className="btn-marcar-facturado" 
-                          onClick={() => setFacturadosIds(prev => [...prev, res.id])}
+                          onClick={() => marcarFacturado(res.id)}
                         >
                           <i className="fa-solid fa-check"></i> Marcar facturado
                         </button>
-                      ) : (
+                      ) : esSaldado ? (
                         <span className="check-facturado-icon">
                           <i className="fa-solid fa-circle-check"></i>
                         </span>
+                      ) : (
+                        <span className="no-aplica-icon">-</span>
                       )}
                     </td>
                   </tr>
@@ -141,7 +176,7 @@ export default function Facturacion() {
           </div>
           <div className="input-fin-group">
             <label>Ingresos Declarados en Turno</label>
-            <input type="text" value={`$${totalCobrado.toLocaleString('es-AR')}`} disabled />
+            <input type="text" value={`$${facturadoEsteMes.toLocaleString('es-AR')}`} disabled />
           </div>
           <div className="input-fin-group">
             <label>Retiros / Gastos de Caja</label>

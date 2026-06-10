@@ -448,7 +448,10 @@
   padding: 8px 0;
 }
 
-.rv-eliminar-icon { font-size: 2.5rem; }
+.rv-eliminar-icon {
+  color: #6b7280;
+  font-size: 2rem;
+}
 
 .rv-eliminar-text {
   font-size: 14px;

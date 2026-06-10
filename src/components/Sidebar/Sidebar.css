@@ -33,7 +33,9 @@
 }
 
 .sidebar-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
   padding: 12px 24px;
   background: none;
@@ -47,15 +49,29 @@
   box-sizing: border-box;
 }
 
+.sidebar-link-icon {
+  width: 18px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
 .sidebar-link:hover {
   background-color: #334155;
   color: #f8fafc;
+}
+
+.sidebar-link:hover .sidebar-link-icon {
+  color: #cbd5e1;
 }
 
 .sidebar-link.active {
   background-color: #f97316; /* Fondo naranja si está activo */
   color: #ffffff;
   font-weight: bold;
+}
+
+.sidebar-link.active .sidebar-link-icon {
+  color: #ffffff;
 }
 
 .sidebar-footer {
